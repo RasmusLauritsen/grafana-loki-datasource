@@ -60,7 +60,15 @@ const DebugFields = ({ fields }: DebugFieldItemProps) => {
             <tr key={`${field.name}=${field.value}`}>
               <td>{field.name}</td>
               <td>{value}</td>
-              <td>{field.href ? <a href={field.href}>{field.href}</a> : ''}</td>
+              <td>
+                {field.href ? (
+                  <a href={field.href} title={field.href}>
+                    {field.urlLabel}
+                  </a>
+                ) : (
+                  ''
+                )}
+              </td>
             </tr>
           );
         })}
@@ -74,6 +82,7 @@ type DebugField = {
   error?: unknown;
   value?: string;
   href?: string;
+  urlLabel?: string;
 };
 
 function makeDebugFields(derivedFields: DerivedFieldConfig[], debugText: string): DebugField[] {
@@ -127,6 +136,7 @@ function makeDebugFields(derivedFields: DerivedFieldConfig[], debugText: string)
           name: field.name,
           value: value || '<no match>',
           href,
+          urlLabel: field.urlDisplayLabel || 'Open link',
         };
         return debugFiled;
       } catch (error) {

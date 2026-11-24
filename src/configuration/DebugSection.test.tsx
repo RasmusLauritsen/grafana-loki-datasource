@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { DebugSection } from './DebugSection';
@@ -47,7 +47,9 @@ describe('DebugSection', () => {
     // 3 rows + one header
     const rows = screen.getAllByRole('row');
     expect(rows.length).toBe(4);
-    expect(rows[1]).toHaveTextContent('http://localhost/trace/${__value.raw}');
+    const link = within(rows[1]).getByRole('link', { name: 'Open link' });
+    expect(link).toHaveAttribute('href', 'http://localhost/trace/1234');
+    expect(link).toHaveAttribute('title', 'http://localhost/trace/1234');
   });
 
   it('shows an Explore link for an internal Tempo link', async () => {
@@ -58,6 +60,7 @@ describe('DebugSection', () => {
             matcherRegex: 'traceId=(\\w+)',
             name: 'traceId',
             url: '${__value.raw}',
+            urlDisplayLabel: 'View Trace',
             datasourceUid: 'tempo-uid',
           },
         ]}
@@ -66,11 +69,12 @@ describe('DebugSection', () => {
 
     await userEvent.type(screen.getByRole('textbox'), 'traceId=1234');
 
-    const link = screen.getByRole('link', { name: /explore\?left=/ });
+    const link = screen.getByRole('link', { name: 'View Trace' });
     expect(link).toHaveAttribute(
       'href',
       expect.stringContaining(encodeURIComponent('"query":"1234","queryType":"traceql"'))
     );
     expect(link).toHaveAttribute('href', expect.stringContaining(encodeURIComponent('"datasource":"tempo-uid"')));
+    expect(link).toHaveAttribute('title', link.getAttribute('href'));
   });
 });
